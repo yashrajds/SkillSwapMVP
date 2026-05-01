@@ -128,6 +128,15 @@ export function Login() {
             </p>
           </div>
 
+          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-3 mb-6">
+            <p className="text-indigo-700 mb-1" style={{ fontSize: "12px", fontWeight: 600 }}>
+              Want a quick look around?
+            </p>
+            <p className="text-indigo-900" style={{ fontSize: "13px", lineHeight: "1.5" }}>
+              Use the demo account: <strong>sophia@example.com</strong> / <strong>DemoPass123!</strong>
+            </p>
+          </div>
+
           <button
             type="button"
             disabled

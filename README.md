@@ -48,6 +48,11 @@ The app will be available at:
 - Frontend: [http://localhost:5173](http://localhost:5173)
 - Backend API: [http://localhost:5000](http://localhost:5000)
 
+Demo account for a quick tour:
+
+- Email: `sophia@example.com`
+- Password: `DemoPass123!`
+
 ## Default Local Behavior
 
 The backend is configured to run out of the box with an in-memory MongoDB instance for local development. That means:

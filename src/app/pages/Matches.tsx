@@ -21,6 +21,7 @@ export function Matches() {
   const [accepted, setAccepted] = useState<Set<string>>(new Set());
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
+  const [connectingId, setConnectingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -68,13 +69,21 @@ export function Matches() {
     : suggestions.map((member) => ({ user: member, commonOffered: [], commonWanted: [], score: 0 }));
 
   const handleConnect = async (member: User) => {
-    await swapService.createSwap({
-      receiverId: member.id,
-      skillOffered: myOfferedNames[0] || member.skillsWanted[0] || "Skill Exchange",
-      skillRequested: member.skillsOffered[0]?.name || member.skillsWanted[0] || "Skill Exchange",
-      message: `Hi ${member.name}, I think we'd be a great skill match.`,
-    });
-    setAccepted((prev) => new Set([...prev, member.id]));
+    try {
+      setError("");
+      setConnectingId(member.id);
+      await swapService.createSwap({
+        receiverId: member.id,
+        skillOffered: myOfferedNames[0] || member.skillsWanted[0] || "Skill Exchange",
+        skillRequested: member.skillsOffered[0]?.name || member.skillsWanted[0] || "Skill Exchange",
+        message: `Hi ${member.name}, I think we'd be a strong fit. Want to explore a focused skill swap together?`,
+      });
+      setAccepted((prev) => new Set([...prev, member.id]));
+    } catch (connectError) {
+      setError(getApiError(connectError, "Unable to send that connection request."));
+    } finally {
+      setConnectingId(null);
+    }
   };
 
   return (
@@ -84,7 +93,7 @@ export function Matches() {
           My Matches
         </h1>
         <p className="text-slate-500" style={{ fontSize: "14px" }}>
-          People who can teach you what you want to learn and want to learn what you teach.
+          People whose skills line up naturally with what you want to learn and what you can offer back.
         </p>
       </div>
 
@@ -179,7 +188,7 @@ export function Matches() {
                           ))}
                         </div>
                         <span className="text-indigo-500" style={{ fontSize: "11px", fontWeight: 500 }}>
-                          {score} skill match
+                          {score} point match
                         </span>
                       </div>
                     )}
@@ -246,11 +255,12 @@ export function Matches() {
                     <>
                       <button
                         onClick={() => void handleConnect(member)}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm"
+                        disabled={connectingId === member.id}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm disabled:opacity-70"
                         style={{ fontSize: "13px", fontWeight: 500 }}
                       >
-                        Connect
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        {connectingId === member.id ? "Sending..." : "Connect"}
+                        {connectingId !== member.id && <ArrowRight className="w-3.5 h-3.5" />}
                       </button>
                       <button
                         onClick={() => setDismissed((prev) => new Set([...prev, member.id]))}
