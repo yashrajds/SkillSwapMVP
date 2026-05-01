@@ -1,12 +1,20 @@
 {
-  "name": "@figma/my-make-file",
+  "name": "skillswap-mvp",
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "workspaces": [
+    "server"
+  ],
   "scripts": {
     "build": "vite build",
-    "dev": "vite",
-    "server": "node server/server.js"
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "vite",
+    "dev:server": "npm --prefix server run dev",
+    "server": "npm --prefix server run start",
+    "start": "npm run dev",
+    "test": "npm run build && npm run test:smoke",
+    "test:smoke": "node server/scripts/smokeTest.js"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -67,10 +75,11 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
-    "vite": "6.3.5"
+    "vite": "6.4.2"
   },
   "peerDependencies": {
     "react": "18.3.1",
@@ -86,7 +95,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.5"
+      "vite": "6.4.2"
     }
   }
 }

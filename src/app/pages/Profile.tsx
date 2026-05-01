@@ -316,7 +316,7 @@ export function Profile() {
               user.skillsOffered.map((s) => (
                 <div key={s.name} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl ${SKILL_LEVEL_COLORS[s.level] || "bg-slate-100 text-slate-600"}`}>
                   <span style={{ fontSize: "13px", fontWeight: 500 }}>{s.name}</span>
-                  <span className="opacity-60" style={{ fontSize: "11px" }}>· {s.level} · {s.experience}</span>
+                  <span className="opacity-60" style={{ fontSize: "11px" }}>| {s.level} | {s.experience}</span>
                 </div>
               ))
             )}

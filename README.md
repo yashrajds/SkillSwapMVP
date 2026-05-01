@@ -1,50 +1,161 @@
 # SkillSwap MVP
 
-SkillSwap uses a Vite + React + TypeScript frontend and a modular Express + MongoDB backend inside [server](C:/Users/hp/Downloads/SkillSwap%20MVP/server).
+SkillSwap is a full-stack skill exchange MVP built with React, Vite, Express, and MongoDB. It lets users create profiles, browse members, publish learning posts, send swap requests, and manage notifications.
 
-## Local setup
+This repository is prepared to run locally with minimal setup:
 
-1. Run `npm install` in `C:\Users\hp\Downloads\SkillSwap MVP`.
-2. Run `npm install` in `C:\Users\hp\Downloads\SkillSwap MVP\server`.
-3. Copy [server/.env.example](C:/Users/hp/Downloads/SkillSwap%20MVP/server/.env.example) to `server/.env`.
-4. Copy [.env.example](C:/Users/hp/Downloads/SkillSwap%20MVP/.env.example) to `.env`.
-5. Add your final MongoDB Atlas URI to `server/.env`.
-6. Start the backend with `npm run dev` inside `server`, or `npm run server` from the root.
-7. Start the frontend with `npm run dev` in the project root.
+- `npm install` installs both the frontend and backend dependencies
+- `npm run dev` starts the frontend and backend together
+- `npm test` runs a production build plus an API smoke test
 
-## API routes
+## Credits
+
+Project creators:
+
+- Harsimran Singh
+- Yashraj Deshmukh
+
+## Tech Stack
+
+- Frontend: React, Vite, TypeScript, Tailwind, MUI
+- Backend: Express, Mongoose
+- Local database: in-memory MongoDB by default for zero-config startup
+- Optional database: MongoDB Atlas or any MongoDB connection string
+
+## Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/yashrajds/SkillSwapMVP.git
+cd SkillSwapMVP
+```
+
+### 2. Install everything
+
+```bash
+npm install
+```
+
+### 3. Start the app
+
+```bash
+npm run dev
+```
+
+The app will be available at:
+
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Backend API: [http://localhost:5000](http://localhost:5000)
+
+## Default Local Behavior
+
+The backend is configured to run out of the box with an in-memory MongoDB instance for local development. That means:
+
+- no MongoDB install is required
+- no Atlas account is required
+- demo users, posts, requests, and notifications are seeded automatically on first boot
+- data resets when the backend process stops
+
+This makes the project easy to clone, run, and evaluate quickly.
+
+## Environment Variables
+
+### Frontend
+
+Create a root `.env` file if you want to override the default API URL:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+The included [.env.example](C:/Users/hp/Downloads/SkillSwap%20MVP/.env.example) already matches the local default.
+
+### Backend
+
+Backend settings live in `server/.env`.
+
+You can start with the example file:
+
+```bash
+copy server\\.env.example server\\.env
+```
+
+Example values:
+
+```env
+MONGO_URI=
+JWT_SECRET=change-me
+PORT=5000
+CLIENT_ORIGIN=http://localhost:5173,http://localhost:4173
+USE_IN_MEMORY_DB=true
+```
+
+Notes:
+
+- Leave `USE_IN_MEMORY_DB=true` for the easiest local setup.
+- If `MONGO_URI` is empty, the app uses the in-memory database.
+- Set `USE_IN_MEMORY_DB=false` and provide a real `MONGO_URI` if you want persistent data.
+
+## Available Scripts
+
+From the project root:
+
+- `npm run dev` starts frontend and backend together
+- `npm run dev:client` starts only the Vite frontend
+- `npm run dev:server` starts only the backend in watch mode
+- `npm run server` starts the backend without watch mode
+- `npm run build` creates a production frontend build
+- `npm test` runs the frontend build and backend smoke tests
+
+## What Is Tested
+
+`npm test` verifies:
+
+- frontend production build succeeds
+- backend boots successfully
+- registration works
+- login-protected profile access works
+- member listing works
+- post creation works
+- post like toggling works
+- swap creation works
+- swap acceptance works
+- notifications are returned
+
+## Main API Routes
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `GET /api/user`
 - `GET /api/user/profile`
 - `PUT /api/user/profile`
-- `POST /api/swaps`
+- `GET /api/posts`
+- `POST /api/posts`
+- `PUT /api/posts/:id/like`
+- `PUT /api/posts/:id/save`
 - `GET /api/swaps`
+- `POST /api/swaps`
 - `PUT /api/swaps/:id`
+- `GET /api/notifications`
+- `PUT /api/notifications/read-all`
+- `PUT /api/notifications/:id/read`
 
-## Frontend integration
+## Publishing Notes
 
-- `src/app/services/authService.ts` handles register/login.
-- `src/app/services/userService.ts` handles profile fetch/update.
-- `src/app/services/swapService.ts` handles create/list/update for swap requests.
-- `src/app/context/AuthContext.tsx` now persists JWT auth and session state.
-- The existing `Login`, `Register`, `Profile`, and `Requests` pages are wired to the backend without changing their UI layout or styling.
+Before pushing or deploying:
 
-## Deployment
+- keep `.env` and `server/.env` out of version control
+- replace `JWT_SECRET` with a strong secret in production
+- set a real `MONGO_URI` if you need persistent data
+- tighten `CLIENT_ORIGIN` to your deployed frontend URL
 
-### Backend on Render or Railway
+## Repository Status
 
-1. Deploy the `server` folder as a Node service.
-2. Set `MONGO_URI`, `JWT_SECRET`, and `PORT`.
-3. Use `npm install` for install and `npm start` for start.
-4. Update the allowed CORS origins before production if your frontend is not served from `http://localhost:5173`.
+This MVP has been cleaned up for publishing with:
 
-### Frontend on Vercel
-
-1. Import the project root into Vercel.
-2. Set `VITE_API_URL` to your deployed backend URL plus `/api`.
-3. Use the standard Vite build command.
-
-## Important note
-
-The MongoDB string you shared still contains a placeholder password, so the backend scaffold is ready but the database connection should be considered pending until you provide the final Atlas URI.
+- a root install flow that works from a fresh clone
+- a single local run command
+- a repeatable smoke test
+- safer default local configuration
+- seeded demo content for easier evaluation

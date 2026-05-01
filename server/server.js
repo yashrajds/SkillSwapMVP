@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes.js";
 import swapRoutes from "./routes/swapRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import { seedDemoData } from "./scripts/seedDemoData.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,10 +18,14 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173,http://localhost:4173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -42,6 +47,9 @@ app.use((err, _req, res, _next) => {
 });
 
 connectDB()
+  .then(() => {
+    return seedDemoData();
+  })
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
