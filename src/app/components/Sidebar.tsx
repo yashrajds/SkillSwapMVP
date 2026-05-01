@@ -10,7 +10,10 @@ import {
   MessageSquare,
   Bell,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { notificationService } from "../services/notificationService";
+import { swapService } from "../services/swapService";
 
 interface NavItemProps {
   to: string;
@@ -45,6 +48,32 @@ function NavItem({ to, icon, label, badge }: NavItemProps) {
 export function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [incomingRequestCount, setIncomingRequestCount] = useState(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
+  useEffect(() => {
+    const loadSidebarCounts = async () => {
+      try {
+        const [swaps, notifications] = await Promise.all([
+          swapService.getSwaps(),
+          notificationService.getNotifications(),
+        ]);
+
+        const currentUserId = user?.id;
+        const pendingIncoming = currentUserId
+          ? swaps.filter((swap) => swap.receiverId === currentUserId && swap.status === "pending").length
+          : 0;
+
+        setIncomingRequestCount(pendingIncoming);
+        setUnreadNotificationCount(notifications.filter((notification) => !notification.read).length);
+      } catch {
+        setIncomingRequestCount(0);
+        setUnreadNotificationCount(0);
+      }
+    };
+
+    void loadSidebarCounts();
+  }, [user?.id]);
 
   const handleLogout = () => {
     logout();
@@ -99,14 +128,14 @@ export function Sidebar() {
         <NavItem to="/dashboard" icon={<LayoutDashboard />} label="Dashboard" />
         <NavItem to="/browse" icon={<Users />} label="Browse Users" />
         <NavItem to="/matches" icon={<Zap />} label="My Matches" />
-        <NavItem to="/requests" icon={<ArrowLeftRight />} label="Requests" badge={1} />
+        <NavItem to="/requests" icon={<ArrowLeftRight />} label="Requests" badge={incomingRequestCount} />
 
         <div className="my-3 border-t border-slate-100" />
         <p className="text-slate-400 uppercase px-3 mb-2" style={{ fontSize: "10px", letterSpacing: "0.08em", fontWeight: 600 }}>
           Community
         </p>
         <NavItem to="/posts" icon={<MessageSquare />} label="Skill Posts" />
-        <NavItem to="/notifications" icon={<Bell />} label="Notifications" badge={3} />
+        <NavItem to="/notifications" icon={<Bell />} label="Notifications" badge={unreadNotificationCount} />
 
         <div className="my-3 border-t border-slate-100" />
         <p className="text-slate-400 uppercase px-3 mb-2" style={{ fontSize: "10px", letterSpacing: "0.08em", fontWeight: 600 }}>

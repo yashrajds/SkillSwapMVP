@@ -61,6 +61,20 @@ export function Dashboard() {
   }, [filteredUsers.length]);
 
   const acceptedSwaps = useMemo(() => swaps.filter((swap) => swap.status === "accepted"), [swaps]);
+  const incomingPendingCount = useMemo(
+    () => swaps.filter((swap) => swap.receiverId === user?.id && swap.status === "pending").length,
+    [swaps, user?.id]
+  );
+  const profileReadiness = useMemo(() => {
+    let complete = 0;
+
+    if (user?.bio) complete += 1;
+    if (user?.location) complete += 1;
+    if ((user?.skillsOffered.length ?? 0) > 0) complete += 1;
+    if ((user?.skillsWanted.length ?? 0) > 0) complete += 1;
+
+    return complete;
+  }, [user]);
 
   const stats = [
     { icon: <Users className="w-5 h-5" />, label: "Total Members", value: String(users.length), color: "text-indigo-600", bg: "bg-indigo-50" },
@@ -78,6 +92,66 @@ export function Dashboard() {
         <p className="text-slate-500" style={{ fontSize: "14px" }}>
           Discover new skill partners and start exchanging today.
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-4 mb-8">
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <p className="text-slate-400 mb-2" style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            Today on SkillSwap
+          </p>
+          <h2 className="text-slate-900 mb-2" style={{ fontSize: "20px", fontWeight: 700 }}>
+            {incomingPendingCount > 0
+              ? `You have ${incomingPendingCount} request${incomingPendingCount === 1 ? "" : "s"} waiting on you`
+              : acceptedSwaps.length > 0
+                ? "You already have active momentum"
+                : "Your next good match is probably one click away"}
+          </h2>
+          <p className="text-slate-500 mb-4" style={{ fontSize: "14px", lineHeight: "1.6" }}>
+            {incomingPendingCount > 0
+              ? "Review incoming requests, accept the best fit, and keep the conversation moving while interest is fresh."
+              : acceptedSwaps.length > 0
+                ? "You have accepted exchanges in progress. Keep browsing if you want to add a second learning lane."
+                : "Start by browsing members who overlap with your learning goals, then send one thoughtful request instead of many generic ones."}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700" style={{ fontSize: "12px", fontWeight: 500 }}>
+              {users.length} people available
+            </span>
+            <span className="px-3 py-1.5 rounded-xl bg-violet-50 text-violet-700" style={{ fontSize: "12px", fontWeight: 500 }}>
+              {acceptedSwaps.length} accepted exchanges
+            </span>
+            <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700" style={{ fontSize: "12px", fontWeight: 500 }}>
+              {swaps.filter((swap) => swap.status === "pending").length} pending requests
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <p className="text-slate-400 mb-2" style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            Profile readiness
+          </p>
+          <h2 className="text-slate-900 mb-1" style={{ fontSize: "20px", fontWeight: 700 }}>
+            {profileReadiness}/4 basics complete
+          </h2>
+          <p className="text-slate-500 mb-4" style={{ fontSize: "14px", lineHeight: "1.6" }}>
+            Stronger profiles get better responses. A short bio plus clear offered and wanted skills makes this feel more trustworthy.
+          </p>
+          <div className="space-y-2">
+            {[
+              { done: Boolean(user?.bio), label: "Write a short bio" },
+              { done: Boolean(user?.location), label: "Add your location" },
+              { done: (user?.skillsOffered.length ?? 0) > 0, label: "List skills you can offer" },
+              { done: (user?.skillsWanted.length ?? 0) > 0, label: "List skills you want to learn" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${item.done ? "bg-green-500" : "bg-slate-300"}`} />
+                <span className={item.done ? "text-slate-700" : "text-slate-500"} style={{ fontSize: "13px" }}>
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -116,7 +190,7 @@ export function Dashboard() {
 
           <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">
             <Filter className="w-4 h-4" />
-            <span style={{ fontSize: "13px" }}>Filter</span>
+            <span style={{ fontSize: "13px" }}>Quick filters</span>
           </button>
 
           <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">

@@ -70,6 +70,10 @@ export function Settings() {
         </p>
       </div>
 
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-6 text-amber-800" style={{ fontSize: "13px", lineHeight: "1.5" }}>
+        These controls are part of the MVP experience. They currently save in the browser UI only and are not synced to the backend yet.
+      </div>
+
       {/* Section: Notifications */}
       <div className="bg-white rounded-2xl border border-slate-100 p-5 mb-4">
         <div className="flex items-center gap-3 mb-5">

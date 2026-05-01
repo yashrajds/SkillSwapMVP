@@ -54,13 +54,23 @@ export function Notifications() {
   const displayed = filter === "all" ? notifications : notifications.filter((notification) => !notification.read);
 
   const markAllRead = async () => {
-    const updated = await notificationService.markAllRead();
-    setNotifications(updated);
+    try {
+      setError("");
+      const updated = await notificationService.markAllRead();
+      setNotifications(updated);
+    } catch (updateError) {
+      setError(getApiError(updateError, "Unable to update notifications."));
+    }
   };
 
   const markRead = async (id: string) => {
-    const updated = await notificationService.markRead(id);
-    setNotifications((prev) => prev.map((notification) => (notification.id === id ? updated : notification)));
+    try {
+      setError("");
+      const updated = await notificationService.markRead(id);
+      setNotifications((prev) => prev.map((notification) => (notification.id === id ? updated : notification)));
+    } catch (updateError) {
+      setError(getApiError(updateError, "Unable to update this notification."));
+    }
   };
 
   return (
@@ -123,8 +133,14 @@ export function Notifications() {
           <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Bell className="w-7 h-7 text-slate-400" />
           </div>
-          <p className="text-slate-600" style={{ fontSize: "15px", fontWeight: 600 }}>No unread notifications</p>
-          <p className="text-slate-400 mt-1" style={{ fontSize: "13px" }}>You're all caught up!</p>
+          <p className="text-slate-600" style={{ fontSize: "15px", fontWeight: 600 }}>
+            {filter === "unread" ? "No unread notifications" : "No notifications yet"}
+          </p>
+          <p className="text-slate-400 mt-1" style={{ fontSize: "13px" }}>
+            {filter === "unread"
+              ? "You're all caught up for now."
+              : "New requests, acceptances, and system updates will show up here."}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
