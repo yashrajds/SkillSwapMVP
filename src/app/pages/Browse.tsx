@@ -55,14 +55,19 @@ export function Browse() {
     const requestedSkill = member.skillsOffered[0]?.name || member.skillsWanted[0];
     if (!offeredSkill || !requestedSkill) return;
 
-    await swapService.createSwap({
-      receiverId: member.id,
-      skillOffered: offeredSkill,
-      skillRequested: requestedSkill,
-      message: `Hi ${member.name}, I'd love to exchange ${offeredSkill} for ${requestedSkill}.`,
-    });
+    try {
+      setError("");
+      await swapService.createSwap({
+        receiverId: member.id,
+        skillOffered: offeredSkill,
+        skillRequested: requestedSkill,
+        message: `Hi ${member.name}, I'd love to exchange ${offeredSkill} for ${requestedSkill}.`,
+      });
 
-    setRequestedUsers((prev) => new Set([...prev, member.id]));
+      setRequestedUsers((prev) => new Set([...prev, member.id]));
+    } catch (requestError) {
+      setError(getApiError(requestError, "Unable to send that request right now."));
+    }
   };
 
   return (

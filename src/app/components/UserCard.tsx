@@ -3,6 +3,7 @@ import { MapPin, Zap, ArrowRight, CheckCircle } from "lucide-react";
 import { swapService } from "../services/swapService";
 import type { User } from "../services/types";
 import { SKILL_LEVEL_COLORS } from "../services/mockData";
+import { getApiError } from "../services/api";
 
 interface UserCardProps {
   user: User;
@@ -14,6 +15,8 @@ interface UserCardProps {
 export function UserCard({ user, onRequest, isRequested = false, defaultSkillOffered }: UserCardProps) {
   const [requested, setRequested] = useState(isRequested);
   const [isHovered, setIsHovered] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setRequested(isRequested);
@@ -25,15 +28,23 @@ export function UserCard({ user, onRequest, isRequested = false, defaultSkillOff
 
     if (!requestedSkill || !offeredSkill) return;
 
-    await swapService.createSwap({
-      receiverId: user.id,
-      skillOffered: offeredSkill,
-      skillRequested: requestedSkill,
-      message: `Hi ${user.name}, I'd love to exchange ${offeredSkill} for ${requestedSkill}.`,
-    });
+    try {
+      setIsSending(true);
+      setError("");
+      await swapService.createSwap({
+        receiverId: user.id,
+        skillOffered: offeredSkill,
+        skillRequested: requestedSkill,
+        message: `Hi ${user.name}, I'd love to exchange ${offeredSkill} for ${requestedSkill}.`,
+      });
 
-    setRequested(true);
-    onRequest?.(user.id);
+      setRequested(true);
+      onRequest?.(user.id);
+    } catch (requestError) {
+      setError(getApiError(requestError, "Unable to send request right now."));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -118,6 +129,12 @@ export function UserCard({ user, onRequest, isRequested = false, defaultSkillOff
           </div>
         </div>
 
+        {error && (
+          <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-red-600" style={{ fontSize: "11px" }}>
+            {error}
+          </div>
+        )}
+
         {requested ? (
           <button
             disabled
@@ -133,11 +150,12 @@ export function UserCard({ user, onRequest, isRequested = false, defaultSkillOff
               e.stopPropagation();
               void handleRequest();
             }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm hover:shadow-indigo-200 hover:shadow-md"
+            disabled={isSending}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm hover:shadow-indigo-200 hover:shadow-md disabled:opacity-70"
             style={{ fontSize: "13px", fontWeight: 500 }}
           >
-            Request Exchange
-            <ArrowRight className={`w-4 h-4 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""}`} />
+            {isSending ? "Sending..." : "Request Exchange"}
+            {!isSending && <ArrowRight className={`w-4 h-4 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""}`} />}
           </button>
         )}
       </div>
