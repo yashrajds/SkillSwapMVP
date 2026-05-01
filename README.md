@@ -13,7 +13,7 @@ This repository is prepared to run locally with minimal setup:
 Project creators:
 
 - Harsimran Singh
-- Yashraj Deshmukh
+- Yashraj Deshmukh (Assistant Developer)
 
 ## Tech Stack
 
